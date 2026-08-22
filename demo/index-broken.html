@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Demo Store — Listings</title></head>
+<body>
+  <h1>Demo Store</h1>
+
+  <!-- REDESIGN: .title -> .product-name, .price moved into nested <span data-field="amount">,
+       .stock -> .availability. Same data, different markup shape. -->
+
+  <div class="listing">
+    <h2 class="product-name">Wireless Mouse</h2>
+    <span class="price-wrap"><span data-field="amount">$19.99</span></span>
+    <span class="availability">In stock</span>
+  </div>
+  <div class="listing">
+    <h2 class="product-name">Mechanical Keyboard</h2>
+    <span class="price-wrap"><span data-field="amount">$89.99</span></span>
+    <span class="availability">In stock</span>
+  </div>
+  <div class="listing">
+    <h2 class="product-name">USB-C Hub</h2>
+    <span class="price-wrap"><span data-field="amount">$34.50</span></span>
+    <span class="availability">Out of stock</span>
+  </div>
+</body>
+</html>
