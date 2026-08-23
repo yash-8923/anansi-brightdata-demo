@@ -40,13 +40,13 @@ See the full [capability reference](docs/features.md) for everything else — pr
 
 ```bash
 # Core install
-pip install "git+https://github.com/mdowis/WBS Scraper"
+pip install "git+https://github.com/yash-8923/WBS Scraper"
 
 # For browser-based fetching (Cloudflare bypass, JS rendering):
 playwright install chromium
 
 # For TLS-fingerprint mimicry (curl-cffi impersonation):
-pip install "WBS Scraper-scraper[tls] @ git+https://github.com/mdowis/WBS Scraper"
+pip install "WBS Scraper-scraper[tls] @ git+https://github.com/yash-8923/WBS Scraper"
 ```
 
 Full install matrix, extras, and Windows notes are in [Getting started](docs/getting-started.md#install).
