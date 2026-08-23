@@ -1,22 +1,61 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Demo Store — Listings</title></head>
+<head>
+<meta charset="utf-8">
+<title>Demo Store — Listings</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #f6f7f9; margin: 0; padding: 40px 20px;
+    font-family: -apple-system, "Segoe UI", Helvetica, sans-serif; color: #1a1d21;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .badge {
+    display: inline-block; background: #111; color: #fff; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+  h1 { font-size: 22px; margin: 0; }
+  .listing {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 14px; display: flex;
+    justify-content: space-between; align-items: center;
+  }
+  .title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .price { font-size: 18px; font-weight: 700; color: #111; }
+  .stock { font-size: 12.5px; color: #6b7280; }
+  .stock.in { color: #16a34a; }
+</style>
+</head>
 <body>
-  <h1>Demo Store</h1>
-  <div class="listing">
-    <h2 class="title">Wireless Mouse</h2>
-    <span class="price">$19.99</span>
-    <span class="stock">In stock</span>
-  </div>
-  <div class="listing">
-    <h2 class="title">Mechanical Keyboard</h2>
-    <span class="price">$89.99</span>
-    <span class="stock">In stock</span>
-  </div>
-  <div class="listing">
-    <h2 class="title">USB-C Hub</h2>
-    <span class="price">$34.50</span>
-    <span class="stock">Out of stock</span>
+  <div class="wrap">
+    <span class="badge">LAYOUT v1</span>
+    <header><h1>Demo Store</h1></header>
+
+    <div class="listing">
+      <div>
+        <h2 class="title">Wireless Mouse</h2>
+        <span class="stock in">In stock</span>
+      </div>
+      <span class="price">$19.99</span>
+    </div>
+
+    <div class="listing">
+      <div>
+        <h2 class="title">Mechanical Keyboard</h2>
+        <span class="stock in">In stock</span>
+      </div>
+      <span class="price">$89.99</span>
+    </div>
+
+    <div class="listing">
+      <div>
+        <h2 class="title">USB-C Hub</h2>
+        <span class="stock">Out of stock</span>
+      </div>
+      <span class="price">$34.50</span>
+    </div>
   </div>
 </body>
 </html>
