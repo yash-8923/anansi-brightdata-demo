@@ -6,55 +6,65 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    background: #f6f7f9; margin: 0; padding: 40px 20px;
-    font-family: -apple-system, "Segoe UI", Helvetica, sans-serif; color: #1a1d21;
+    background: #101216; margin: 0; padding: 40px 20px;
+    font-family: -apple-system, "Segoe UI", Helvetica, sans-serif; color: #e8eaed;
   }
-  .wrap { max-width: 720px; margin: 0 auto; }
+  .wrap { max-width: 760px; margin: 0 auto; }
   .badge {
-    display: inline-block; background: #111; color: #fff; font-size: 11px;
+    display: inline-block; background: #f59e0b; color: #1a1a1a; font-size: 11px;
     font-weight: 700; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 999px;
     margin-bottom: 16px;
   }
   header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
   h1 { font-size: 22px; margin: 0; }
-  .listing {
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
-    padding: 18px 20px; margin-bottom: 14px; display: flex;
-    justify-content: space-between; align-items: center;
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .product-card {
+    background: #181b20; border: 1px solid #2a2f37; border-radius: 14px;
+    padding: 20px; display: flex; flex-direction: column; gap: 10px;
   }
-  .title { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
-  .price { font-size: 18px; font-weight: 700; color: #111; }
-  .stock { font-size: 12.5px; color: #6b7280; }
-  .stock.in { color: #16a34a; }
+  .price-wrap { font-size: 24px; font-weight: 800; color: #f5f5f5; order: -1; }
+  .product-name { font-size: 14.5px; font-weight: 500; margin: 0; color: #c7cbd1; }
+  .availability {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;
+    color: #9aa1ab; background: #22262d; display: inline-block;
+    padding: 3px 8px; border-radius: 6px; width: fit-content;
+  }
+  .availability.in { color: #22c55e; background: rgba(34,197,94,0.12); }
+
+  /* REDESIGN NOTE: .title -> .product-name, .price -> .price-wrap > [data-field="amount"],
+     .stock -> .availability. Same underlying data, different markup shape,
+     which is exactly what breaks a naive CSS-selector scraper. */
 </style>
 </head>
 <body>
   <div class="wrap">
-    <span class="badge">LAYOUT v1</span>
+    <span class="badge">LAYOUT v2 — REDESIGNED</span>
     <header><h1>Demo Store</h1></header>
 
-    <div class="listing">
+    <div class="grid">
+    <div class="product-card">
       <div>
-        <h2 class="title">Wireless Mouse</h2>
-        <span class="stock in">In stock</span>
+        <h2 class="product-name">Wireless Mouse</h2>
+        <span class="availability in">In stock</span>
       </div>
-      <span class="price">$19.99</span>
+      <span class="price-wrap"><span data-field="amount">$17.49</span></span>
     </div>
 
-    <div class="listing">
+    <div class="product-card">
       <div>
-        <h2 class="title">Mechanical Keyboard</h2>
-        <span class="stock in">In stock</span>
+        <h2 class="product-name">Mechanical Keyboard</h2>
+        <span class="availability in">In stock</span>
       </div>
-      <span class="price">$89.99</span>
+      <span class="price-wrap"><span data-field="amount">$94.99</span></span>
     </div>
 
-    <div class="listing">
+    <div class="product-card">
       <div>
-        <h2 class="title">USB-C Hub</h2>
-        <span class="stock">Out of stock</span>
+        <h2 class="product-name">USB-C Hub</h2>
+        <span class="availability">Out of stock</span>
       </div>
-      <span class="price">$34.50</span>
+      <span class="price-wrap"><span data-field="amount">$29.99</span></span>
+    </div>
     </div>
   </div>
 </body>
