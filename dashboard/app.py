@@ -24,6 +24,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
 from anansi.collectors.brightdata import BrightDataCollector, BrightDataCollectorError
 from anansi.collectors.storage import count_runs, load_items, save_items
 
@@ -90,9 +93,15 @@ def index():
 
 @app.route("/trigger", methods=["POST"])
 def trigger():
+    target_url = os.environ.get("BRIGHTDATA_TARGET_URL")
+    if not target_url:
+        return jsonify({
+            "ok": False,
+            "error": "Set BRIGHTDATA_TARGET_URL in .env to the page this collector scrapes.",
+        }), 400
     try:
         collector = BrightDataCollector()
-        items = asyncio.run(collector.run())
+        items = asyncio.run(collector.run({"url": target_url}))
         stored = save_items(items)
         return jsonify({"ok": True, "stored": stored})
     except BrightDataCollectorError as exc:

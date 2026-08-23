@@ -44,7 +44,7 @@ async def test_run_triggers_and_polls():
     )
 
     collector = BrightDataCollector()
-    items = await collector.run()
+    items = await collector.run({"url": "https://x.test/1"})
 
     assert len(items) == 1
     assert items[0].data["title"] == "Widget"
@@ -60,7 +60,7 @@ async def test_run_sync_path():
     )
 
     collector = BrightDataCollector()
-    items = await collector.run_sync()
+    items = await collector.run_sync({"url": "https://x.test/1"})
 
     assert len(items) == 1
     assert items[0].data["title"] == "Fast item"
@@ -71,6 +71,20 @@ async def test_run_sync_path():
 async def test_trigger_error_raises():
     respx.post(TRIGGER_URL).mock(return_value=Response(401, text="unauthorized"))
 
+    collector = BrightDataCollector()
+    with pytest.raises(BrightDataCollectorError):
+        await collector.trigger({"url": "https://x.test/1"})
+
+
+@pytest.mark.asyncio
+async def test_trigger_missing_url_raises():
+    collector = BrightDataCollector()
+    with pytest.raises(BrightDataCollectorError):
+        await collector.trigger({"not_url": "oops"})
+
+
+@pytest.mark.asyncio
+async def test_trigger_missing_inputs_raises():
     collector = BrightDataCollector()
     with pytest.raises(BrightDataCollectorError):
         await collector.trigger()

@@ -31,8 +31,11 @@ import os
 from typing import Any
 
 import httpx
+from dotenv import load_dotenv
 
 from anansi.core import Item
+
+load_dotenv()  # reads .env in the current working directory, if present
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +87,25 @@ class BrightDataCollector:
         }
 
     async def trigger(self, inputs: dict[str, Any] | list[dict[str, Any]] | None = None) -> str:
-        """Kick off an async run. Returns a snapshot/job id to poll with ``wait_for_result``."""
-        payload = inputs if isinstance(inputs, list) else [inputs or {}]
+        """Kick off an async run. Returns a snapshot/job id to poll with ``wait_for_result``.
+
+        Bright Data's /dca/trigger_immediate always expects an ARRAY of row
+        objects, and each row must include a "url" key (even if your
+        Collector was built against one fixed URL). Pass e.g.
+        ``{"url": "https://example.com/page"}`` or a list of such dicts for
+        multiple rows.
+        """
+        if inputs is None:
+            raise BrightDataCollectorError(
+                'inputs is required — pass e.g. {"url": "https://your-target/"} '
+                "(Bright Data requires a url per row, even for single-URL collectors)."
+            )
+        payload = inputs if isinstance(inputs, list) else [inputs]
+        for row in payload:
+            if "url" not in row:
+                raise BrightDataCollectorError(
+                    f'Row missing required "url" key: {row}'
+                )
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 TRIGGER_URL,
@@ -135,6 +155,7 @@ class BrightDataCollector:
     async def run(self, inputs: dict[str, Any] | None = None) -> list[Item]:
         """Trigger the collector, wait for results, and return Anansi Items.
 
+        ``inputs`` must include a "url" key, e.g. {"url": "https://your-target/"}.
         This is the one call most integrations need: fire-and-collect.
         """
         snapshot_id = await self.trigger(inputs)
@@ -143,7 +164,11 @@ class BrightDataCollector:
 
     async def run_sync(self, inputs: dict[str, Any] | None = None) -> list[Item]:
         """Use the 25-50s synchronous ``/dca/trigger`` path for small/fast targets."""
-        payload = [inputs or {}]
+        if inputs is None or "url" not in inputs:
+            raise BrightDataCollectorError(
+                'inputs must include a "url" key, e.g. {"url": "https://your-target/"}.'
+            )
+        payload = [inputs]
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(
                 SYNC_TRIGGER_URL,

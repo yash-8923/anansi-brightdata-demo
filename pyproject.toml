@@ -28,6 +28,7 @@ dependencies = [
     "rich>=13.0,<15",
     "anyio>=4.0,<5",
     "markdownify>=0.13,<2",
+    "python-dotenv>=1.0,<2",
 ]
 
 [project.optional-dependencies]

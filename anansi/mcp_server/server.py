@@ -1645,8 +1645,9 @@ async def brightdata_run(
     collector_id explicitly) to be set — see SETUP.md.
 
     Args:
-        inputs: Optional input dict/list the Collector expects (e.g. {"url": "..."}).
-                Leave empty to use the Collector's default target.
+        inputs: Required. Dict with at least a "url" key, e.g.
+                {"url": "https://your-target-site.com/page"}. Bright Data
+                requires a url per row even for single-URL collectors.
         sync: Use the fast synchronous trigger path (25-50s cap) instead of
               async trigger + poll. Good for small/single-page collectors.
         collector_id: Override the c_* Collector ID from the env var.
