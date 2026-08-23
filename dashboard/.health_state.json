@@ -1,0 +1,58 @@
+{
+  "status": "healthy",
+  "records": 3,
+  "last_run": null,
+  "before_selector": ".title / .price",
+  "after_selector": null,
+  "timeline": [],
+  "success_history": [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+  ],
+  "prices": {
+    "Wireless Mouse": {
+      "before": 19.99,
+      "current": 19.99
+    },
+    "Mechanical Keyboard": {
+      "before": 89.99,
+      "current": 89.99
+    },
+    "USB-C Hub": {
+      "before": 34.5,
+      "current": 34.5
+    }
+  },
+  "collectors": [
+    {
+      "name": "products",
+      "target": "Demo store listings",
+      "status": "healthy",
+      "records": 3,
+      "success": 100.0,
+      "real": true
+    },
+    {
+      "name": "jobs-demo",
+      "target": "Careers page (sample)",
+      "status": "healthy",
+      "records": 58,
+      "success": 98.2,
+      "real": false
+    },
+    {
+      "name": "pricing-demo",
+      "target": "Regional e-commerce (sample)",
+      "status": "healthy",
+      "records": 214,
+      "success": 99.1,
+      "real": false
+    }
+  ],
+  "incidents": []
+}
