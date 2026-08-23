@@ -53,7 +53,7 @@ public helper methods added below.
   and migrated exactly once — instead of opening a fresh connection and replaying
   the full schema on every operation. A single page fetch previously triggered many
   connect-and-reinitialise cycles; these are now amortised to one. Call
-  `anansi.db.close_all()` at shutdown to release pooled connections (the MCP server
+  `WBS Scraper.db.close_all()` at shutdown to release pooled connections (the MCP server
   and CLI do this automatically).
 - **Shared headless browser in the MCP server**: browser-backed tools
   (`fetch_url(use_browser=true)`, `screenshot_url`, and browser escalation) now reuse
@@ -66,18 +66,18 @@ Both changes are internal performance improvements with no public API change.
 ## [1.0.0] - 2026-07-15
 
 First stable release. From this version on, the public API surface exported from
-`anansi/__init__.py` follows semantic versioning — breaking changes will bump the
+`WBS Scraper/__init__.py` follows semantic versioning — breaking changes will bump the
 major version.
 
 ### Added
 
-- **Coherent personas** (`anansi.persona`): a `Persona` model and
+- **Coherent personas** (`WBS Scraper.persona`): a `Persona` model and
   `build_persona(seed=, mobile=)` that bundle User-Agent, platform, viewport,
   screen, locale, timezone, WebGL, hardware, and touch into one internally
   consistent identity, drawn from a curated real-device catalog and deterministic
   under a seed. Both the HTTP and browser fetchers drive their headers /
   fingerprint from the same persona.
-- **Shared protection detection** (`anansi.protection`): `detect_protection()`
+- **Shared protection detection** (`WBS Scraper.protection`): `detect_protection()`
   classifies a response into a vendor (Cloudflare, Akamai, DataDome) and a kind
   (challenge, hard block, CAPTCHA, JS shell) so every layer reacts consistently.
 - **Vendor-aware escalation** (`escalate_protection`): Cloudflare challenge →
@@ -90,11 +90,11 @@ major version.
 - **Target-aware proxy scoring** (`ProxyManager`): records which proxies succeed
   against which domains/vendors; `next(domain=, vendor=)` prefers proven proxies,
   penalises recent hard blocks, and falls back to round-robin for cold targets.
-- **CAPTCHA interface** (`anansi.captcha`): `CaptchaSolver` protocol,
+- **CAPTCHA interface** (`WBS Scraper.captcha`): `CaptchaSolver` protocol,
   `NullCaptchaSolver`, and `detect_captcha()` for reCAPTCHA, hCaptcha, Turnstile,
   DataDome, and FunCaptcha. Detection-only by default; an opt-in solver hook on
   `BrowserFetcher` surfaces unsolved challenges as `manual_required` without
-  looping. No solving provider ships with Anansi.
+  looping. No solving provider ships with WBS Scraper.
 
 ### Changed
 

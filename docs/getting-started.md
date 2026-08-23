@@ -1,29 +1,29 @@
 # Getting started
 
-Install Anansi, run your first fetch and crawl, and use the CLI.
+Install WBS Scraper, run your first fetch and crawl, and use the CLI.
 
 ## Install
 
-The distribution name is `anansi-scraper`; the import package is `anansi`. It
+The distribution name is `WBS Scraper-scraper`; the import package is `WBS Scraper`. It
 is installed from this Git repository (not yet published to PyPI), so the
 optional extras use pip's `extras @ git+URL` syntax:
 
 ```bash
 # Core install
-pip install "git+https://github.com/mdowis/anansi"
+pip install "git+https://github.com/mdowis/WBS Scraper"
 
 # For browser-based fetching (Cloudflare bypass, JS rendering):
 playwright install chromium
 
 # With the TLS-fingerprint-mimicry extra (curl-cffi impersonation):
-pip install "anansi-scraper[tls] @ git+https://github.com/mdowis/anansi"
+pip install "WBS Scraper-scraper[tls] @ git+https://github.com/mdowis/WBS Scraper"
 
 # With the OpenAI / ChatGPT Agents SDK extra:
-pip install "anansi-scraper[openai] @ git+https://github.com/mdowis/anansi"
+pip install "WBS Scraper-scraper[openai] @ git+https://github.com/mdowis/WBS Scraper"
 ```
 
-Once installed, the MCP server is available as the `anansi-mcp` console script
-or via `python -m anansi.mcp_server.server`, and the CLI as `anansi`.
+Once installed, the MCP server is available as the `WBS Scraper-mcp` console script
+or via `python -m WBS Scraper.mcp_server.server`, and the CLI as `WBS Scraper`.
 
 **Windows:** `pip` is often not on PATH. Use `py -m pip install ...` instead. If `py` isn't found either, download Python from [python.org](https://python.org) and check **"Add Python to PATH"** during setup.
 
@@ -33,8 +33,8 @@ or via `python -m anansi.mcp_server.server`, and the CLI as `anansi`.
 
 ```python
 import asyncio
-from anansi import AdaptiveParser
-from anansi.parser.adaptive import SelectorConfig
+from WBS Scraper import AdaptiveParser
+from WBS Scraper.parser.adaptive import SelectorConfig
 
 async def main():
     html = ...  # fetched HTML
@@ -63,9 +63,9 @@ asyncio.run(main())
 
 ```python
 from pydantic import BaseModel
-from anansi import Crawler, ProxyManager
-from anansi.core import Item, Request, Response
-from anansi.spider.spider import Spider
+from WBS Scraper import Crawler, ProxyManager
+from WBS Scraper.core import Item, Request, Response
+from WBS Scraper.spider.spider import Spider
 
 class ProductItem(BaseModel):
     title: str
@@ -122,20 +122,20 @@ browser-upgrade, and rate-limiting internals, see [How it works](how-it-works.md
 
 ```bash
 # Fetch and print as markdown
-anansi fetch https://example.com --output markdown
+WBS Scraper fetch https://example.com --output markdown
 
 # Use browser (Cloudflare bypass, JS rendering)
-anansi fetch https://protected-site.com --browser
+WBS Scraper fetch https://protected-site.com --browser
 
 # Fetch presenting as Googlebot
-anansi fetch https://example.com --as-googlebot
-anansi fetch https://example.com --bot-profile googlebot-mobile
+WBS Scraper fetch https://example.com --as-googlebot
+WBS Scraper fetch https://example.com --bot-profile googlebot-mobile
 
 # List all recorded crawls
-anansi crawls
+WBS Scraper crawls
 
 # Start the MCP server
-anansi mcp
+WBS Scraper mcp
 ```
 
 More examples in [`/examples`](../examples/).

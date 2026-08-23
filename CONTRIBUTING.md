@@ -1,4 +1,4 @@
-# Contributing to Anansi
+# Contributing to WBS Scraper
 
 Thanks for your interest. Contributions are welcome, but this project has opinions. Read this before opening a PR.
 
@@ -7,8 +7,8 @@ Thanks for your interest. Contributions are welcome, but this project has opinio
 ## Getting started
 
 ```bash
-git clone https://github.com/mdowis/anansi.git
-cd anansi
+git clone https://github.com/mdowis/WBS Scraper.git
+cd WBS Scraper
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```

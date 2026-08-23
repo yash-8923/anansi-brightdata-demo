@@ -4,6 +4,11 @@
   "last_run": null,
   "before_selector": ".title / .price",
   "after_selector": null,
+  "evidence": {
+    "before_html": null,
+    "after_html": null,
+    "diagnosis": null
+  },
   "timeline": [],
   "success_history": [
     100,
@@ -17,15 +22,18 @@
   "prices": {
     "Wireless Mouse": {
       "before": 19.99,
-      "current": 19.99
+      "current": 19.99,
+      "stale": false
     },
     "Mechanical Keyboard": {
       "before": 89.99,
-      "current": 89.99
+      "current": 89.99,
+      "stale": false
     },
     "USB-C Hub": {
       "before": 34.5,
-      "current": 34.5
+      "current": 34.5,
+      "stale": false
     }
   },
   "collectors": [

@@ -8,11 +8,11 @@
 
 **A self-healing web scraper for hostile sites — and it's driveable by any LLM.**
 
-Every scraper starts working. The question is how long before it breaks. Anansi is built on a
+Every scraper starts working. The question is how long before it breaks. WBS Scraper is built on a
 different assumption: the web is adversarial and unstable, and your scraper should handle that
 without your involvement.
 
-When a site changes its layout, Anansi finds the data anyway and **remembers the fix**. When a
+When a site changes its layout, WBS Scraper finds the data anyway and **remembers the fix**. When a
 page needs a browser to render, it **switches to one silently**. When bot detection gets in the
 way, it presents a **coherent identity** — matched TLS fingerprint, persona, and headers — that
 works to slip past detection instead of tripping it. And when you re-crawl, unchanged pages are
@@ -40,13 +40,13 @@ See the full [capability reference](docs/features.md) for everything else — pr
 
 ```bash
 # Core install
-pip install "git+https://github.com/mdowis/anansi"
+pip install "git+https://github.com/mdowis/WBS Scraper"
 
 # For browser-based fetching (Cloudflare bypass, JS rendering):
 playwright install chromium
 
 # For TLS-fingerprint mimicry (curl-cffi impersonation):
-pip install "anansi-scraper[tls] @ git+https://github.com/mdowis/anansi"
+pip install "WBS Scraper-scraper[tls] @ git+https://github.com/mdowis/WBS Scraper"
 ```
 
 Full install matrix, extras, and Windows notes are in [Getting started](docs/getting-started.md#install).
@@ -57,9 +57,9 @@ Full install matrix, extras, and Windows notes are in [Getting started](docs/get
 
 ```python
 from pydantic import BaseModel
-from anansi import Crawler
-from anansi.core import Item, Request, Response
-from anansi.spider.spider import Spider
+from WBS Scraper import Crawler
+from WBS Scraper.core import Item, Request, Response
+from WBS Scraper.spider.spider import Spider
 
 class ProductItem(BaseModel):
     title: str
@@ -93,12 +93,12 @@ More examples — structured-data extraction, pausing and resuming, proxies, exp
 
 ## Drive it from any LLM
 
-Anansi ships a [FastMCP](docs/mcp.md) server exposing 17 scraping tools over stdio or SSE, so an
+WBS Scraper ships a [FastMCP](docs/mcp.md) server exposing 17 scraping tools over stdio or SSE, so an
 LLM agent can run a full crawl through conversation:
 
 ```bash
 # Register with Claude Code
-claude mcp add anansi -- anansi-mcp
+claude mcp add WBS Scraper -- WBS Scraper-mcp
 ```
 
 Works with Claude Code, Claude Desktop, Cursor, Windsurf, ChatGPT, LangChain, and the OpenAI
@@ -112,14 +112,14 @@ Agents SDK. Setup for each is in the [MCP server guide](docs/mcp.md).
 - **[Capabilities](docs/features.md)** — the full feature reference.
 - **[How it works](docs/how-it-works.md)** — self-healing extraction, browser auto-upgrade, and adaptive rate limiting internals.
 - **[Anti-bot & identity](docs/anti-bot.md)** — TLS fingerprint mimicry, coherent personas, crawler impersonation, vendor-aware escalation, sticky sessions, proxy scoring, CAPTCHA, operator controls.
-- **[MCP server](docs/mcp.md)** — run the server and drive Anansi from any LLM (all client configs).
+- **[MCP server](docs/mcp.md)** — run the server and drive WBS Scraper from any LLM (all client configs).
 - **[Architecture](docs/architecture.md)** — package layout at a glance.
 
 ---
 
 ## Legal / Acceptable Use
 
-Anansi is a powerful scraping tool. **You are solely responsible for how you use it.** Before
+WBS Scraper is a powerful scraping tool. **You are solely responsible for how you use it.** Before
 scraping any site, ensure you have the right to access and use the data and that you comply with
 the site's Terms of Service, its `robots.txt`, applicable rate limits, and all relevant laws
 (including computer-misuse statutes such as the CFAA and data-protection law such as GDPR/CCPA).

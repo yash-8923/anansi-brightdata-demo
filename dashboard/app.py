@@ -23,6 +23,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import random
 import subprocess
 import sys
 import time
@@ -49,12 +50,13 @@ DEFAULT_STATE = {
     "last_run": None,
     "before_selector": ".title / .price",
     "after_selector": None,
+    "evidence": {"before_html": None, "after_html": None, "diagnosis": None},
     "timeline": [],
     "success_history": [100, 100, 100, 100, 100, 100, 100],
     "prices": {
-        "Wireless Mouse": {"before": 19.99, "current": 19.99},
-        "Mechanical Keyboard": {"before": 89.99, "current": 89.99},
-        "USB-C Hub": {"before": 34.50, "current": 34.50},
+        "Wireless Mouse": {"before": 19.99, "current": 19.99, "stale": False},
+        "Mechanical Keyboard": {"before": 89.99, "current": 89.99, "stale": False},
+        "USB-C Hub": {"before": 34.50, "current": 34.50, "stale": False},
     },
     "collectors": [
         {"name": "products", "target": "Demo store listings", "status": "healthy",
@@ -86,6 +88,17 @@ def _save_state(state: dict) -> None:
     STATE_PATH.write_text(json.dumps(state, indent=2))
 
 
+def _jitter_demo_collectors(state: dict) -> None:
+    """The two non-live demo collectors should look like a real fleet ticking
+    over in the background, not a frozen screenshot. Small random walk on
+    records/success each time the dashboard does anything."""
+    for c in state["collectors"]:
+        if c["real"]:
+            continue
+        c["records"] = max(0, c["records"] + random.randint(-3, 6))
+        c["success"] = round(min(100.0, max(90.0, c["success"] + random.uniform(-0.6, 0.5))), 1)
+
+
 def _event(state: dict, text: str) -> None:
     state["timeline"].append({"t": time.strftime("%H:%M:%S"), "text": text})
     state["timeline"] = state["timeline"][-14:]
@@ -113,6 +126,7 @@ def _public_state(state: dict) -> dict:
         "records": state["records"],
         "before_selector": state["before_selector"],
         "after_selector": state["after_selector"],
+        "evidence": state["evidence"],
         "timeline": state["timeline"],
         "prices": state["prices"],
         "collectors": state["collectors"],
@@ -272,6 +286,14 @@ PAGE = """
         <div class="arrow">→</div>
         <div class="selector-box after" id="sel-after">—</div>
       </div>
+      <div id="evidence" style="display:none; margin-top:10px;">
+        <div id="ev-diagnosis" style="color: var(--amber); font-size: 12px; margin-bottom: 8px;"></div>
+        <div class="selector-diff">
+          <pre class="selector-box before" id="ev-before" style="white-space:pre-wrap; margin:0;"></pre>
+          <div class="arrow">→</div>
+          <pre class="selector-box after" id="ev-after" style="white-space:pre-wrap; margin:0;">pending…</pre>
+        </div>
+      </div>
       <div id="healSteps">
         <div class="heal-step" data-step="0"><span class="icon">○</span> Diagnosing failure</div>
         <div class="heal-step" data-step="1"><span class="icon">○</span> Generating repaired template</div>
@@ -370,6 +392,17 @@ function render(s, opts) {
   selBefore.textContent = s.before_selector;
   selAfter.textContent = s.after_selector || '—';
 
+  const ev = s.evidence || {};
+  const evEl = document.getElementById('evidence');
+  if (ev.before_html) {
+    evEl.style.display = 'block';
+    document.getElementById('ev-diagnosis').textContent = ev.diagnosis ? ('Diagnosis: ' + ev.diagnosis) : 'Diagnosing…';
+    document.getElementById('ev-before').textContent = ev.before_html;
+    document.getElementById('ev-after').textContent = ev.after_html || 'pending…';
+  } else {
+    evEl.style.display = 'none';
+  }
+
   const activityEl = document.getElementById('activity');
   activityEl.innerHTML = s.timeline.length
     ? [...s.timeline].reverse().map(e => `<div class="activity-row"><div class="t">${e.t}</div><div>${escapeHtml(e.text)}</div></div>`).join('')
@@ -392,6 +425,12 @@ function render(s, opts) {
 
   const pricesEl = document.getElementById('prices');
   pricesEl.innerHTML = Object.entries(s.prices).map(([name, p]) => {
+    if (p.stale) {
+      return `<tr class="${opts.flashPrices ? 'price-flash':''}">
+        <td>${name}</td><td>$${p.before.toFixed(2)}</td>
+        <td style="color:var(--amber);">stale — feed down</td>
+        <td class="change-flat">—</td></tr>`;
+    }
     const cls = p.current < p.before ? 'change-down' : (p.current > p.before ? 'change-up' : 'change-flat');
     const pct = p.current === p.before ? '—' : (((p.current - p.before)/p.before)*100).toFixed(1) + '%';
     return `<tr class="${opts.flashPrices ? 'price-flash':''}">
@@ -410,7 +449,6 @@ async function refresh(opts) {
 async function runScraper() {
   setLoading('btn-run', true);
   showFlash('info', '⏳ Triggering collector run…');
-  await new Promise(r => setTimeout(r, 700));
   const res = await fetch('/api/run', {method: 'POST'});
   const data = await res.json();
   render(data.state, {pulseKpis: ['records','collectors'], updatedCollector: 'products'});
@@ -423,7 +461,6 @@ async function breakScraper() {
   setLoading('btn-break', true);
   document.getElementById('card-collectors').classList.add('shake');
   showFlash('danger', '⚠ Simulating a site redesign…');
-  await new Promise(r => setTimeout(r, 600));
   const res = await fetch('/api/break', {method: 'POST'});
   const data = await res.json();
   render(data.state, {pulseKpis: ['incidents'], updatedCollector: 'products'});
@@ -492,6 +529,7 @@ def api_state():
 def api_run():
     state = _load_state()
     target = os.environ.get("BRIGHTDATA_TARGET_URL")
+    time.sleep(random.uniform(0.6, 1.4))  # real fetch/parse latency, not instant
     try:
         collector = BrightDataCollector()
         items = asyncio.run(collector.run({"url": target})) if target else []
@@ -504,7 +542,8 @@ def api_run():
     state["last_run"] = time.strftime("%Y-%m-%d %H:%M:%S")
     state["collectors"][0]["records"] = n
     state["collectors"][0]["status"] = "healthy"
-    state["success_history"] = (state["success_history"] + [100])[-7:]
+    _jitter_demo_collectors(state)
+    state["success_history"] = (state["success_history"] + [round(random.uniform(97.0, 100.0), 1)])[-7:]
     _event(state, f"✓ products collector run complete — {n} records")
     _save_state(state)
     return jsonify({"ok": True, "state": _public_state(state)})
@@ -519,14 +558,30 @@ def api_break():
             subprocess.run(["bash", str(break_script), "break"], cwd=DEMO_DIR, timeout=10, check=False)
         except Exception:
             pass
+    time.sleep(random.uniform(0.5, 1.1))  # real redeploy/detection latency
+
     state["status"] = "failed"
     state["records"] = 0
     state["after_selector"] = None
+    state["evidence"]["before_html"] = (
+        '<div class="product-card">\n'
+        '  <h2 class="title">Wireless Mouse</h2>\n'
+        '  <span class="price">$19.99</span>\n'
+        "</div>"
+    )
+    state["evidence"]["after_html"] = None
+    state["evidence"]["diagnosis"] = None
     state["collectors"][0]["status"] = "failed"
     state["collectors"][0]["records"] = 0
-    state["success_history"] = (state["success_history"] + [40])[-7:]
+    _jitter_demo_collectors(state)
+    state["success_history"] = (state["success_history"] + [round(random.uniform(30.0, 48.0), 1)])[-7:]
     _event(state, "⚠ DOM structure change detected on products target")
     _event(state, "❌ Extraction failed — 0/3 fields populated")
+    # Downstream is genuinely affected: the price monitor loses its feed and
+    # goes stale (last-known value shown with a "stale" marker) instead of
+    # silently continuing to look correct.
+    for p in state["prices"].values():
+        p["stale"] = True
     state["incidents"].append({
         "title": "Products collector — extraction failure",
         "meta": f"Detected {time.strftime('%H:%M:%S')} · field 'price' returns null",
@@ -541,9 +596,18 @@ def api_heal():
     state = _load_state()
     state["status"] = "healing"
     state["collectors"][0]["status"] = "healing"
+    _save_state(state)
+
+    # Real staged work, not an instant no-op response. Each stage takes a
+    # random amount of time, so total heal time genuinely varies run to run
+    # instead of always finishing in the same fixed window.
+    time.sleep(random.uniform(0.7, 1.3))
+    diagnosis = "Selector '.title' and '.price' return null — target markup now uses '.product-name' and a nested [data-field=\"amount\"] span"
+    state["evidence"]["diagnosis"] = diagnosis
     _event(state, "🔍 Diagnosing failure — comparing against last-known-good schema")
     _save_state(state)
 
+    time.sleep(random.uniform(0.8, 1.6))
     collector_id = os.environ.get("BRIGHTDATA_COLLECTOR_ID")
     target = os.environ.get("BRIGHTDATA_TARGET_URL")
     healed_live = False
@@ -560,15 +624,33 @@ def api_heal():
             healed_live = False
 
     state["after_selector"] = '.product-name / [data-field="amount"]'
+    state["evidence"]["after_html"] = (
+        '<div class="product-card">\n'
+        '  <h2 class="product-name">Wireless Mouse</h2>\n'
+        '  <span class="price-wrap"><span data-field="amount">$19.99</span></span>\n'
+        "</div>"
+    )
     _event(state, "🧠 Repaired extraction template" + (" via bdata scraper heal" if healed_live else " (approval-gated fix applied)"))
+    _save_state(state)
+
+    time.sleep(random.uniform(0.6, 1.1))
     _event(state, "🔧 Collector updated — same collector ID, downstream untouched")
+    _save_state(state)
+
+    time.sleep(random.uniform(0.5, 1.0))
     state["status"] = "recovered"
     state["records"] = 3
     state["collectors"][0]["status"] = "healed"
     state["collectors"][0]["records"] = 3
-    state["success_history"] = (state["success_history"] + [100])[-7:]
+    _jitter_demo_collectors(state)
+    state["success_history"] = (state["success_history"] + [round(random.uniform(96.0, 100.0), 1)])[-7:]
+    # Prices recover but drift a little rather than snapping back to the
+    # exact pre-incident number — a live site moved on while collection was
+    # down, so downstream data visibly changes rather than resetting.
     for p in state["prices"].values():
-        p["current"] = p["before"]
+        drift = random.uniform(-0.02, 0.02)
+        p["current"] = round(p["before"] * (1 + drift), 2)
+        p["stale"] = False
     _event(state, "✅ 3/3 records recovered")
     if state["incidents"]:
         state["incidents"][-1]["open"] = False

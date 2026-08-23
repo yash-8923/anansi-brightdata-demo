@@ -1,7 +1,7 @@
 # Architecture
 
 ```
-anansi/
+WBS Scraper/
 ├── core.py              # Request, Response, Item, Spider base
 ├── db.py                # SQLite schema (selectors.db, crawls.db, url_cache)
 ├── fetchers/

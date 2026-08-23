@@ -1,15 +1,15 @@
 # MCP server (LLM integration)
 
-Anansi ships a **FastMCP** server that exposes all scraping capabilities as tools any LLM can call over stdio transport.
+WBS Scraper ships a **FastMCP** server that exposes all scraping capabilities as tools any LLM can call over stdio transport.
 
-> **Windows note:** Claude Desktop and most MCP clients on Windows spawn the server with a restricted PATH that often excludes `Python313\Scripts\`, so `anansi-mcp` may not be found. Use `python -m anansi.mcp_server.server` in any config where it fails.
+> **Windows note:** Claude Desktop and most MCP clients on Windows spawn the server with a restricted PATH that often excludes `Python313\Scripts\`, so `WBS Scraper-mcp` may not be found. Use `python -m WBS Scraper.mcp_server.server` in any config where it fails.
 
 ## Start the server
 
 ```bash
-anansi-mcp
+WBS Scraper-mcp
 # or
-python -m anansi.mcp_server.server
+python -m WBS Scraper.mcp_server.server
 ```
 
 ## Tools
@@ -150,17 +150,17 @@ fetch_url(
 
 **Claude Code:**
 ```bash
-claude mcp add anansi -- anansi-mcp
+claude mcp add WBS Scraper -- WBS Scraper-mcp
 ```
 
 **Claude Desktop / Cursor / Windsurf** — add to the client's MCP config file:
 ```json
-{ "mcpServers": { "anansi": { "command": "anansi-mcp" } } }
+{ "mcpServers": { "WBS Scraper": { "command": "WBS Scraper-mcp" } } }
 ```
 
-**If `anansi-mcp` is not found** (common on Windows where the Scripts directory isn't on PATH):
+**If `WBS Scraper-mcp` is not found** (common on Windows where the Scripts directory isn't on PATH):
 ```json
-{ "mcpServers": { "anansi": { "command": "python", "args": ["-m", "anansi.mcp_server.server"] } } }
+{ "mcpServers": { "WBS Scraper": { "command": "python", "args": ["-m", "WBS Scraper.mcp_server.server"] } } }
 ```
 
 **Any LLM via Python:**
@@ -168,7 +168,7 @@ claude mcp add anansi -- anansi-mcp
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-server = StdioServerParameters(command="anansi-mcp")
+server = StdioServerParameters(command="WBS Scraper-mcp")
 async with stdio_client(server) as (read, write):
     async with ClientSession(read, write) as session:
         await session.initialize()
@@ -184,27 +184,27 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 
 **ChatGPT Desktop App** — open Settings → Connectors → Add MCP Server and paste:
 ```json
-{ "command": "anansi-mcp", "args": [], "env": {} }
+{ "command": "WBS Scraper-mcp", "args": [], "env": {} }
 ```
 
 **ChatGPT / OpenAI Agents SDK (programmatic):**
 ```bash
-pip install "anansi-scraper[openai] @ git+https://github.com/mdowis/anansi"
+pip install "WBS Scraper-scraper[openai] @ git+https://github.com/mdowis/WBS Scraper"
 ```
 ```python
 from agents import Agent, Runner
 from agents.mcp import MCPServerStdio
 
-async with MCPServerStdio(params={"command": "anansi-mcp", "args": []}) as server:
-    agent = Agent(name="Scraper", instructions="Use Anansi tools.", mcp_servers=[server])
+async with MCPServerStdio(params={"command": "WBS Scraper-mcp", "args": []}) as server:
+    agent = Agent(name="Scraper", instructions="Use WBS Scraper tools.", mcp_servers=[server])
     result = await Runner.run(agent, "Fetch https://example.com and summarise it.")
     print(result.final_output)
 ```
 
 **Remote SSE transport** (for web-based ChatGPT or shared team access):
 ```bash
-# Start Anansi as an HTTP server
-anansi-mcp --transport sse --host 0.0.0.0 --port 8000
+# Start WBS Scraper as an HTTP server
+WBS Scraper-mcp --transport sse --host 0.0.0.0 --port 8000
 ```
 Then point ChatGPT Desktop (or the Agents SDK) at `http://<host>:8000/sse`:
 ```json

@@ -15,11 +15,11 @@ timeline with the reporter.
 
 ## Threat model (summary)
 
-Anansi ships an MCP server that exposes fetch / extract / crawl / screenshot /
+WBS Scraper ships an MCP server that exposes fetch / extract / crawl / screenshot /
 export tools to any connected LLM.
 
 **Trusted:** the operator's machine and filesystem; the Python interpreter and
-installed packages; the local SQLite databases under `~/.anansi/`.
+installed packages; the local SQLite databases under `~/.WBS Scraper/`.
 
 **Untrusted:**
 
@@ -42,7 +42,7 @@ follow-up review closed two additional MCP entry-point gaps.
 | Area | Status | Where enforced |
 |---|---|---|
 | SSRF (all fetch/crawl/screenshot tools + redirects + sitemap children) | Fixed | `security.is_url_safe_for_public_fetch`; per-hop revalidation in `fetchers/http.py` |
-| Arbitrary file write via `export_crawl` / `screenshot_url` paths | Fixed | `security.confine_to_dir` → `~/.anansi/exports/` |
+| Arbitrary file write via `export_crawl` / `screenshot_url` paths | Fixed | `security.confine_to_dir` → `~/.WBS Scraper/exports/` |
 | Cross-origin credential leakage in crawls | Fixed | `Crawler.credential_scope_host`; `crawl_site` registrable-domain default |
 | ReDoS via client-supplied regex / `text` selectors | Fixed | `security.validate_regex` (heuristic + length cap) |
 | Gzip-bomb on sitemap decompression | Fixed | `security.safe_gzip_decompress` (streamed, 50 MB cap) |
@@ -76,14 +76,14 @@ by the MCP/LLM client:
 - `ANANSI_IMPERSONATE=<target>` — operator default curl-cffi
   TLS/HTTP-2-fingerprint impersonation target (e.g. `chrome124`). **Off by
   default** (no behavior change). The value must be in
-  `anansi.security.IMPERSONATE_ALLOWLIST`; an invalid value fails loud at
+  `WBS Scraper.security.IMPERSONATE_ALLOWLIST`; an invalid value fails loud at
   import. A per-call `impersonate` argument is also accepted on the fetch /
   crawl tools, but — because the MCP client is untrusted — it is validated
   against the same allowlist before reaching curl-cffi.
 
 ## Edge bot-manager (Akamai) handling
 
-Anansi can scrape sites fronted by Akamai Bot Manager (and similar) for
+WBS Scraper can scrape sites fronted by Akamai Bot Manager (and similar) for
 **authorized** use. Akamai blocks via three mechanisms: TLS JA3/JA4
 fingerprint, HTTP/2 SETTINGS/frame-ordering fingerprint, and behavioral
 scoring of "cold" requests (no `_abck`/`bm_sz`/`ak_bmsc` cookies, no
@@ -108,7 +108,7 @@ enabling impersonation does **not** weaken the SSRF guard.
 validates `_abck` and also fingerprints/blocks headless Chromium. Defeating
 that tier realistically also requires residential/mobile egress IPs (route
 via the existing proxy support) and may remain unreliable in-process even
-with browser + impersonation combined. Anansi makes a best effort and
+with browser + impersonation combined. WBS Scraper makes a best effort and
 surfaces an honest blocked status when it cannot get through.
 
 ## Deployment guidance

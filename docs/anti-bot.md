@@ -1,6 +1,6 @@
 # Anti-bot & identity
 
-Anansi's identity-coherence and anti-bot subsystem: TLS/HTTP-2 fingerprint mimicry, coherent
+WBS Scraper's identity-coherence and anti-bot subsystem: TLS/HTTP-2 fingerprint mimicry, coherent
 personas, crawler impersonation, vendor-aware detection and escalation, sticky sessions,
 target-aware proxy scoring, and CAPTCHA handling.
 
@@ -12,9 +12,9 @@ target-aware proxy scoring, and CAPTCHA handling.
 ## TLS fingerprint mimicry
 
 ```python
-from anansi.fetchers.http import HTTPFetcher
+from WBS Scraper.fetchers.http import HTTPFetcher
 
-# Requires the tls extra: pip install "anansi-scraper[tls] @ git+https://github.com/mdowis/anansi"
+# Requires the tls extra: pip install "WBS Scraper-scraper[tls] @ git+https://github.com/mdowis/WBS Scraper"
 async with HTTPFetcher(impersonate="chrome124") as f:
     result = await f.fetch("https://bot-protected-site.com")
     print(result.html)
@@ -27,21 +27,21 @@ async with HTTPFetcher(impersonate="chrome124") as f:
     r3 = await f.fetch("https://example.com/page3", impersonate=None)   # plain httpx
 ```
 
-Without `[tls]` installed, Anansi logs a warning and falls back to standard httpx automatically — no code change required.
+Without `[tls]` installed, WBS Scraper logs a warning and falls back to standard httpx automatically — no code change required.
 
 ## Impersonating crawlers (Googlebot)
 
 Some sites serve their full, ungated content to search-engine crawlers for SEO
 while gating browsers behind consent walls or JS shells. A **bot profile** makes
-Anansi present as a known crawler: it pins the `User-Agent` to that crawler's
+WBS Scraper present as a known crawler: it pins the `User-Agent` to that crawler's
 string, sends its accurate (minimal) header set — dropping the browser-only
 `Sec-Fetch-*` / `DNT` / `Upgrade-Insecure-Requests` headers — and, in a crawl,
 evaluates `robots.txt` against that crawler's agent token (e.g. `Googlebot`)
 instead of `*`. Built-in profiles: `googlebot`, `googlebot-mobile`.
 
 ```python
-from anansi.fetchers.http import HTTPFetcher
-from anansi.spider.crawler import Crawler
+from WBS Scraper.fetchers.http import HTTPFetcher
+from WBS Scraper.spider.crawler import Crawler
 
 # Single fetch presenting as Googlebot
 async with HTTPFetcher(bot_profile="googlebot") as f:
@@ -69,9 +69,9 @@ these into one internally consistent identity, and both the HTTP and browser
 fetchers drive their headers/fingerprint from the *same* persona.
 
 ```python
-from anansi import build_persona
-from anansi.fetchers.http import HTTPFetcher
-from anansi.fetchers.browser import BrowserFetcher
+from WBS Scraper import build_persona
+from WBS Scraper.fetchers.http import HTTPFetcher
+from WBS Scraper.fetchers.browser import BrowserFetcher
 
 persona = build_persona(seed=42)          # deterministic with a seed
 http = HTTPFetcher(persona=persona)        # Accept-Language matches the UA
@@ -85,7 +85,7 @@ random fingerprint at every layer.
 
 ## Vendor-aware detection & escalation
 
-A shared classifier (`anansi.protection.detect_protection`) identifies the
+A shared classifier (`WBS Scraper.protection.detect_protection`) identifies the
 protection **vendor** (Cloudflare, Akamai, DataDome) and **kind** (solvable
 challenge, hard block, CAPTCHA, or plain JS shell) from a single HTTP response —
 so the crawler can react *before* wasting a full browser challenge timeout:
@@ -98,7 +98,7 @@ so the crawler can react *before* wasting a full browser challenge timeout:
 - **DataDome** → browser, ideally behind a sticky residential proxy.
 
 ```python
-from anansi import detect_protection
+from WBS Scraper import detect_protection
 
 d = detect_protection(html, status, headers, cookies)
 print(d.vendor, d.kind, d.needs_browser, d.is_hard_block)
@@ -137,14 +137,14 @@ best = pm.next(domain="shop.com", vendor="cloudflare")
 ## CAPTCHA solver hook
 
 CAPTCHA handling is an explicit, opt-in interface rather than hidden browser
-logic. By default Anansi is **detection-only**: it recognises reCAPTCHA,
+logic. By default WBS Scraper is **detection-only**: it recognises reCAPTCHA,
 hCaptcha, Turnstile, DataDome, and FunCaptcha and surfaces them, but never
 attempts to solve. Pass a `CaptchaSolver` to attempt solving (manual queue,
 human-in-the-loop, or a commercial provider you wire up yourself):
 
 ```python
-from anansi import CaptchaSolver, CaptchaResult, NullCaptchaSolver
-from anansi.fetchers.browser import BrowserFetcher
+from WBS Scraper import CaptchaSolver, CaptchaResult, NullCaptchaSolver
+from WBS Scraper.fetchers.browser import BrowserFetcher
 
 class MySolver:                       # implements the CaptchaSolver protocol
     async def solve(self, challenge) -> CaptchaResult:
@@ -154,7 +154,7 @@ browser = BrowserFetcher(captcha_solver=MySolver())   # or NullCaptchaSolver()
 ```
 
 An unsolved CAPTCHA returns the page as-is with `manual_required` set — it never
-loops forever. No solving provider ships with Anansi.
+loops forever. No solving provider ships with WBS Scraper.
 
 ## Limitations
 
@@ -200,7 +200,7 @@ requests — block pages show `Reference #…` / `errors.edgesuite.net` and a
 **Honest limit:** the highest Akamai tier validates `_abck` via sensor JS and
 also blocks headless Chromium. Even with impersonation + browser + warm-up it
 may remain unreliable without residential/mobile egress, and sometimes even
-then. Anansi makes a best effort and reports an honest blocked status when it
+then. WBS Scraper makes a best effort and reports an honest blocked status when it
 cannot get through. These features are for **authorized** scraping only — see
 [`DISCLAIMER.md`](../DISCLAIMER.md); `ANANSI_DISABLE_ANTIBOT=1` turns all of it
 off.

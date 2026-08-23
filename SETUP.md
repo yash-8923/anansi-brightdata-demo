@@ -1,8 +1,8 @@
-# Setup — Anansi + Bright Data Scraper Studio
+# Setup — WBS Scraper + Bright Data Scraper Studio
 
 This project combines two self-healing layers:
 
-- **Anansi** (this repo) — local, code-level self-healing: CSS selectors carry
+- **WBS Scraper** (this repo) — local, code-level self-healing: CSS selectors carry
   confidence scores and repair themselves, a headless browser kicks in
   silently when a page needs JS rendering, and a coherent anti-bot identity
   (TLS fingerprint, persona, vendor-aware Cloudflare/Akamai/DataDome handling)
@@ -12,8 +12,8 @@ This project combines two self-healing layers:
   self-heal with `bdata scraper heal` when the target site's HTML changes,
   entirely on Bright Data's side — no redeploy, same Collector ID.
 
-Anansi's crawler/parser/anti-bot code is untouched by this integration. The
-new code lives entirely in `anansi/collectors/` and two new MCP tools
+WBS Scraper's crawler/parser/anti-bot code is untouched by this integration. The
+new code lives entirely in `WBS Scraper/collectors/` and two new MCP tools
 (`brightdata_run`, `brightdata_items`) plus a small dashboard.
 
 ---
@@ -29,13 +29,13 @@ new code lives entirely in `anansi/collectors/` and two new MCP tools
 ## 1. Install this project
 
 ```bash
-git clone <your-fork-url> anansi
-cd anansi
+git clone <your-fork-url> WBS Scraper
+cd WBS Scraper
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 pip install -e ".[dashboard]"    # core deps + Flask for the dashboard
-playwright install chromium      # for Anansi's browser-fallback fetcher
+playwright install chromium      # for WBS Scraper's browser-fallback fetcher
 ```
 
 Copy the env template and fill in your Bright Data API key (Collector ID comes in step 3):
@@ -99,14 +99,14 @@ You should get clean JSON back.
 
 ---
 
-## 4. Run it from inside Anansi
+## 4. Run it from inside WBS Scraper
 
 ### Option A — MCP tool (agent-driven, "terminal is the UI")
 
 Register the MCP server with your coding agent:
 
 ```bash
-claude mcp add anansi -- anansi-mcp
+claude mcp add WBS Scraper -- WBS Scraper-mcp
 ```
 
 Then, in conversation with your agent:
@@ -114,15 +114,15 @@ Then, in conversation with your agent:
 > "Run the Bright Data collector and show me what it found."
 
 This calls the new `brightdata_run` tool, which triggers your Collector,
-waits for results, maps them into Anansi's `Item` model, and stores them.
+waits for results, maps them into WBS Scraper's `Item` model, and stores them.
 `brightdata_items` reads them back later.
 
 ### Option B — Direct script
 
 ```python
 import asyncio
-from anansi.collectors.brightdata import BrightDataCollector
-from anansi.collectors.storage import save_items
+from WBS Scraper.collectors.brightdata import BrightDataCollector
+from WBS Scraper.collectors.storage import save_items
 
 async def main():
     collector = BrightDataCollector()   # reads BRIGHTDATA_API_KEY / _COLLECTOR_ID from env
@@ -173,7 +173,7 @@ npx -p @brightdata/cli bdata scraper heal c_xxxxxxxxxxxx \
   "Reviews stopped extracting after the page redesign" --auto-approve
 ```
 
-Same Collector ID before and after — nothing downstream (Anansi's tools,
+Same Collector ID before and after — nothing downstream (WBS Scraper's tools,
 storage, dashboard) needs to change. **Record this for the demo video.**
 
 ---
@@ -219,7 +219,7 @@ This repo ships one: `demo-target/`.
      --url "https://you.github.io/demo-target/"
    ```
    Re-run the scraper — all 3 fields populated again, same Collector ID,
-   nothing in Anansi or the dashboard touched.
+   nothing in WBS Scraper or the dashboard touched.
 
 5. **Restore for repeat demos:**
    ```bash
@@ -233,7 +233,7 @@ This is a real break + real heal, filmable end-to-end in under 90 seconds.
 
 ## 6. What to show in the demo video
 
-1. Anansi's own local self-healing (existing feature — `docs/how-it-works.md`
+1. WBS Scraper's own local self-healing (existing feature — `docs/how-it-works.md`
    has a walkthrough) — this is your code-owned layer.
 2. `bdata scraper create` → Collector ID appears.
 3. `brightdata_run` (via agent or script) → structured JSON, stored.
@@ -250,5 +250,5 @@ This is a real break + real heal, filmable end-to-end in under 90 seconds.
 - Mask your API key on screen during the demo recording, or use a throwaway
   key you rotate afterward.
 - Only scrape publicly available pages — no login walls, no paywalled
-  content, no personal data (also enforced by Anansi's own `robots.py` /
+  content, no personal data (also enforced by WBS Scraper's own `robots.py` /
   `security.py`, and Bright Data's own ToS).
